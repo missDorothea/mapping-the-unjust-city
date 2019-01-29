@@ -3,7 +3,11 @@ import { MapNode } from './UndergroundLines';
 import { Route } from 'react-router';
 import { slugify } from '../utils/slugify';
 
+// colors for the metro lines 
+// TODO: pick screen safe/optimal colors + optimal ones for color blindness 
 export const COLOR_ORANGE = 'rgb(243, 113, 30)';
+export const COLOR_BLUE = 'rgb(0, 128, 255)';
+export const COLOR_GREEN = 'rgb(102, 204, 0)';
 
 interface Dim {
   r: number;
