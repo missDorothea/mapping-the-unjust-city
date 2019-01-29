@@ -1,9 +1,19 @@
 import * as React from 'react';
 import { SyntheticEvent } from 'react';
 import { matrix, pan, scale } from '../math';
-import { getRedLineNodes, getRedLineNodesNorth } from '../models/UndergroundLineDefinitions';
 import { MapNode, UndergroundManager } from '../components/UndergroundLines';
+// get metro lines
+import { getRedLineNodes, getRedLineNodesNorth } from '../models/UndergroundLineDefinitions';
+import { getBlueLineNodesEast, getBlueLineNodesWest } from '../models/UndergroundLineDefinitions';
+/** still unused
+ * import { geGreenLineNodesWest, getRedLineNodesSouth } from '../models/UndergroundLineDefinitions';
+ */
+// import/declare metro colors, obs. they need to be read too, in order not to throw error
 import { COLOR_ORANGE, Station } from '../components/Station';
+import { COLOR_BLUE } from '../components/Station';
+/**
+ * import { COLOR_GREEN } from '../components/Station';
+ */
 import { MapText } from '../components/MapText';
 import { AppState } from '../state/AppState';
 import { Dispatch } from 'redux';
@@ -54,6 +64,7 @@ interface UndergroundLineProps {
   undergroundManager: UndergroundManager;
 }
 
+// red lines
 const RedLine = ( props: UndergroundLineProps ): any => {
   const nodes = props.nodes;
   const undergroundManager = props.undergroundManager;
@@ -122,6 +133,76 @@ const RedLine = ( props: UndergroundLineProps ): any => {
   );
 };
 
+// blue lines
+const BlueLine = ( props: UndergroundLineProps ): any => {
+  const nodes = props.nodes;
+  const undergroundManager = props.undergroundManager;
+  const parentNode = props.parentNode;
+
+  const stations = [];
+
+  for (let i = 0; i < nodes.length; i++) {
+    const node = nodes[i];
+    const previousNode = i === 0 ? parentNode : nodes[i - 1];
+
+    const lengthMultiplier = node.lengthMultiplier ? node.lengthMultiplier : 1;
+    const x = xFromGrid(previousNode.x, node.direction, lengthMultiplier);
+    const y = yFromGrid(previousNode.y, node.direction, lengthMultiplier);
+
+    // store the positions inside the node objects
+    node.x = x;
+    node.y = y;
+
+    const lineCoords = {
+      x1: previousNode.x,
+      y1: previousNode.y,
+      x2: node.x,
+      y2: node.y
+    };
+
+    stations.push(
+      <g>
+        <line {...lineCoords} stroke={COLOR_BLUE} strokeWidth="10"/>
+        <Station
+          x={x}
+          y={y}
+          node={node}
+        />
+
+        <MapText
+          x={x}
+          y={y}
+          node={node}
+        />
+
+        // Branch off
+        {
+          node.branch
+            ? node.branch.map(( branchId: number ) => {
+              const n = undergroundManager.getNodesById(branchId);
+              return (
+                <BlueLine
+                  key={`${node.name}-${branchId}`}
+                  nodes={n}
+                  parentNode={node}
+                  undergroundManager={undergroundManager}
+                />
+              );
+            })
+            : null
+        }
+      </g>
+    );
+  }
+
+  return (
+    <g>
+      {stations.map(s => s)}
+    </g>
+  );
+};  
+
+// other stuff from here
 export const getInitialMapState = (): MapState => {
   return {
     scaleFactor: 0.8,
@@ -159,6 +240,7 @@ export class MapState {
   };
 }
 
+// central station defined here
 class MapComponent extends React.Component<MapProps, AppState> {
 
   undergroundManager = new UndergroundManager();
@@ -196,8 +278,11 @@ class MapComponent extends React.Component<MapProps, AppState> {
       y: height / 2
     };
 
+    // TODO: add more lines here
     const redLineNodes = getRedLineNodes(this.undergroundManager);
     const redLineNodesNorth = getRedLineNodesNorth(this.undergroundManager);
+    const blueLineNodesEast = getBlueLineNodesEast(this.undergroundManager); 
+    const blueLineNodesWest = getBlueLineNodesWest(this.undergroundManager);       
 
     return (
       <div className="full-screen" style={positionFixed}>
@@ -219,6 +304,7 @@ class MapComponent extends React.Component<MapProps, AppState> {
                   scaleFactor)
               )
             }
+          // TODO: add more lines here
           >
             <RedLine
               nodes={redLineNodes}
@@ -231,6 +317,18 @@ class MapComponent extends React.Component<MapProps, AppState> {
               parentNode={centralStation}
               undergroundManager={this.undergroundManager}
             />
+
+            <BlueLine
+              nodes={blueLineNodesEast}
+              parentNode={centralStation}
+              undergroundManager={this.undergroundManager}
+            />
+
+            <BlueLine
+              nodes={blueLineNodesWest}
+              parentNode={centralStation}
+              undergroundManager={this.undergroundManager}
+            />                                      
           </g>
         </svg>
       </div>
