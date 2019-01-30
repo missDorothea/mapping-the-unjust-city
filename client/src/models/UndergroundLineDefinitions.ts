@@ -66,6 +66,7 @@ const redLineFruangenNodes: MapNode[] = [
 const redLineMalarhojdenNodes: MapNode[] = [
   station('Aspudden', 'w'),
   station('Örnsberg', 'w'),
+  station('Axelsberg', 'w'),
   station('Mälarhöjden', 'w', -1, 1, null, [Branches.RED_LINE_NORSBORG]),
 ];
 
@@ -75,6 +76,7 @@ const redLineNorsborgNodes: MapNode[] = [
   station('Skärholmen', 'sw', -1, 1, CompanyDefinitions.GROSVENOR),
   station('Vårberg', 'sw', -1, 1, CompanyDefinitions.AGORA),
   station('Vårby Gård', 'sw', -1, 1, CompanyDefinitions.BALDER),
+  station('Massmo', 'sw', -1, 1),
   station('Fittja', 'sw', -1, 1, CompanyDefinitions.FITTJA_CENTRUMFASTIGHETER),
   station('Alby', 'sw', -1, 1, CompanyDefinitions.BOTKYRKABYGGEN),
   station('Hallunda', 'sw', -1, 1, CompanyDefinitions.STERNER),
@@ -83,12 +85,17 @@ const redLineNorsborgNodes: MapNode[] = [
 
 // red line - south bound from t-centralen
 const redLineSouthBound: MapNode[] = [
+  station('Centralen', 's', -2, 1, null, [
+    Branches.BLUE_LINE_KUNGSTRADGARDEN, Branches.BLUE_LINE_WESTBOUND // yields the red lines (duplicate blue)
+    ]),
   station('Gamla stan', 's'),
   station('Slussen', 's'),
   station('Mariatorget', 'w'),
   station('Zinkensdamm', 'w'),
   station('Hornstull', 'w'),
-  station('Liljeholmen', 'w', -1, 1, null, [Branches.RED_LINE_MALARHOJDEN, Branches.RED_LINE_FRUANGEN]),
+  station('Liljeholmen', 'w', -1, 1, null, [
+    Branches.RED_LINE_MALARHOJDEN, Branches.RED_LINE_FRUANGEN
+    ]),
 ];
 
 // north bound from t-centralen
@@ -105,24 +112,25 @@ const redLineMorbyCentrum: MapNode[] = [
   station('Universitetet', 'n'),
   station('Bergshamra', 'n'),
   station('Danderyds sjukhus', 'n'),
-  station('Mörby Centrum', 'n'),
+  station('Mörby Centrum [T14]', 'n'),
 ];
 
 const redLineRopsten: MapNode[] = [
   station('Karlaplan', 'ne', -1, 2),
   station('Gärdet', 'ne', -1, 2),
-  station('Ropsten', 'ne', -1, 2),
+  station('Ropsten [T13]', 'ne', -1, 2),
 ];
 
 // east from t-centralen
 const blueLineKungstradgardenNodes: MapNode[] = [
-  station('Kungsträdgården', 'e'),
+  station('Kungsträdgården [T10, T11]', 'e', -1, 2),
 ];
 
 // west from t-centralen, continuing northwest
 const blueLineWestBoundNodes: MapNode[] = [
   station('Rådhuset', 'w'),
-  station('Fridhemsplan', 'nw', -1, 1, null, [Branches.GREEN_LINE_ALVIK]),
+  station('Fridhemsplan', 'nw', -1, 1, null), // removed suff here because of: 
+    // "TypeError: Cannot read property 'nodes' of undefined" 
   station('Stadshagen', 'nw'),
   station('Västra skogen', 'nw', -1, 1, null, [Branches.BLUE_LINE_AKALLA, Branches.BLUE_LINE_HJULSTA]),
 ];
